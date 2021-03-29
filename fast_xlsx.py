@@ -19,6 +19,7 @@ def is_number(s):
     except ValueError:
         return False
 
+path = "A:/01 Ressourcen prüfen Tf/09_Berichtswesen/00-Baum-Erstellen/Grundtabellen/2-Feb21/1_ZuBA_Baum_Feb21.xlsx"
 def read(path, sheet_name=None, header=True, index_col=False, skiprows=[], skipcolumns=[]):
     """
     Reads an .xlsx or .xlsm file and returns a Pandas DataFrame. Is much faster than pandas.read_excel().
@@ -131,8 +132,8 @@ def read(path, sheet_name=None, header=True, index_col=False, skiprows=[], skipc
             return "date"
         if 45 <= x <= 47:
             return "time"
-        if x >= 165:
-            return numfmts[x - 165]
+        if x >= 164:
+            return numfmts[x - 164]
         else:
             return "number"
 
@@ -157,18 +158,22 @@ def read(path, sheet_name=None, header=True, index_col=False, skiprows=[], skipc
     for r in rows:            
         # c><c r="AT2" s="1" t="n"><v></v></c><c r="AU2" s="115" t="inlineStr"><is><t>bla (Namensk&#252;rzel)</t></is></c>
 
-        r = re.sub(r"</?r.*?>","", r)        
+        r = re.sub(r"</?r.*?>","", r) 
         r = re.sub(r"<(is|si).*?><t.*?>", "<v>", r)
         r = re.sub(r"</t></(is|si)>", "</v>", r)
         r = re.sub(r"</t><t.*?>","", r)
-        # empty values
-        r = r.replace("<v/>", "<v></v>")
-
+        # empty value
+        r = r.replace(r"<v/>","<v></v>")
+        
         values = r.split("</v>")[:-1]
         add = []
         colnr = 0
         for v in values:
+
             value = re.split("<v.*?>", v)[1]
+            
+            # remove carriage returns from line breaks
+            value = value.replace("\r","")
             
             v = v.rsplit("<c", 1)[1]
             # get column number of the field
